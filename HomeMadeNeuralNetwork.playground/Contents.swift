@@ -105,7 +105,7 @@ class Node : Identifiable {
         let e = 2.718281828459045
         switch self.type {
         case .Input:
-            print("Input node, nothing to do.")
+            self.inputs.removeAll()
         case.Output:
             var deltaW = eta
             var pow = 0.0
@@ -119,6 +119,7 @@ class Node : Identifiable {
             } else {
                 print("Error, Update Weight before activating neuron.")
             }
+            self.inputs.removeAll()
             return delta
         case .Hidden:
             if let children = children {
@@ -139,6 +140,7 @@ class Node : Identifiable {
                 let deltaW = eta * delta * inputs[weight.key]!
                 self.weights[weight.key] = weight.value - deltaW
             }
+            self.inputs.removeAll()
             return delta
         }
         return 0
@@ -230,7 +232,7 @@ class NeuralNetwork : Identifiable {
         }
         var currentLayer = outputNode
         var previousDelta = [UUID : Double]()
-        while currentLayer.randomElement()?.type != .Input {
+        while !currentLayer.isEmpty {
             for node in currentLayer {
                 let delta = node.UpdateWeights(previousDeltas: previousDelta, eta: learningRate, desiredOutput: desiredOutput)
                 previousDelta[node.id] = delta
@@ -265,7 +267,7 @@ let nn = NeuralNetwork(inputCount: 2, hiddenlayerWidth: 2, hiddenLayerDepth: 1, 
 let time2 = DispatchTime.now()
 let inputs : [(Double, Double)] = [(0, 0), (0, 1), (1, 0), (1, 1)]
 let outputs : [Double] = [0, 1, 1, 0]
-let errors = nn.Train(Epoches: 250, inputs: inputs, Outputs: outputs, learningRate: 0.6)
+let errors = nn.Train(Epoches: 250, inputs: inputs, Outputs: outputs, learningRate: 0.3)
 let time3 = DispatchTime.now()
 print(errors)
 print("Execution Stats: \((time2.uptimeNanoseconds - time1.uptimeNanoseconds)/1_000_000) ms to make build neural network.")
