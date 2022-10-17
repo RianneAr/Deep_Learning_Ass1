@@ -108,12 +108,10 @@ class Node : Identifiable {
             self.inputs.removeAll()
         case.Output:
             var deltaW = eta
-            var pow = 0.0
-            pow += 1
             if let output = output {
                 delta = output * (1 - output) * (desiredOutput - output)
                 for weight in weights {
-                    deltaW = delta * eta * (desiredOutput - output) * inputs[weight.key]!
+                    deltaW = delta * eta * inputs[weight.key]!
                     self.weights[weight.key] = weight.value - deltaW
                 }
             } else {
@@ -139,6 +137,7 @@ class Node : Identifiable {
             for weight in weights {
                 let deltaW = eta * delta * inputs[weight.key]!
                 self.weights[weight.key] = weight.value - deltaW
+                print("")
             }
             self.inputs.removeAll()
             return delta
@@ -265,9 +264,9 @@ class NeuralNetwork : Identifiable {
 let time1 = DispatchTime.now()
 let nn = NeuralNetwork(inputCount: 2, hiddenlayerWidth: 2, hiddenLayerDepth: 1, outputCount: 1)
 let time2 = DispatchTime.now()
-let inputs : [(Double, Double)] = [(0, 0), (0, 1), (1, 0), (1, 1)]
+let inputs : [(Double, Double)] = [(1, 1), (1, 2), (2, 1), (2, 2)]
 let outputs : [Double] = [0, 1, 1, 0]
-let errors = nn.Train(Epoches: 250, inputs: inputs, Outputs: outputs, learningRate: 0.3)
+let errors = nn.Train(Epoches: 200, inputs: inputs, Outputs: outputs, learningRate: 0.2)
 let time3 = DispatchTime.now()
 print(errors)
 print("Execution Stats: \((time2.uptimeNanoseconds - time1.uptimeNanoseconds)/1_000_000) ms to make build neural network.")
