@@ -253,25 +253,37 @@ class NeuralNetwork : Identifiable {
                 networkHeads[1].setValue(value: (self.id, inputs[i].1))
                 temporaryErrors += (self.output - Outputs[i]) * (self.output - Outputs[i])
                 BackTrack(learningRate: learningRate, desiredOutput: outputs[i])
+                FlushNeuralNetwork()
             }
             temporaryErrors /= Double(Outputs.count)
             errors.append(temporaryErrors)
         }
         return errors
     }
+    
+    func FlushNeuralNetwork() {
+        var nodes = self.outputNode
+        while nodes != nil {
+            if let nodes = nodes {
+                for node in nodes {
+                    node.inputs.removeAll()
+                }
+            }
+            nodes = nodes?.first?.parents
+        }
+    }
 }
 
 let time1 = DispatchTime.now()
 let nn = NeuralNetwork(inputCount: 2, hiddenlayerWidth: 2, hiddenLayerDepth: 1, outputCount: 1)
 let time2 = DispatchTime.now()
-let inputs : [(Double, Double)] = [(1, 1), (1, 2), (2, 1), (2, 2)]
-let outputs : [Double] = [0, 1, 1, 0]
-let errors = nn.Train(Epoches: 200, inputs: inputs, Outputs: outputs, learningRate: 0.2)
+let inputs : [(Double, Double)] = [(0.1, 0.1), (0.1, 1), (1, 0.1), (1, 1)]
+let outputs : [Double] = [1, 1, 1, 1]
+let errors = nn.Train(Epoches: 1024, inputs: inputs, Outputs: outputs, learningRate: 0.8)
 let time3 = DispatchTime.now()
-print(errors)
 print("Execution Stats: \((time2.uptimeNanoseconds - time1.uptimeNanoseconds)/1_000_000) ms to make build neural network.")
 print("Execution Stats: \((time3.uptimeNanoseconds - time2.uptimeNanoseconds)/1_000_000) ms to calculate error.")
-
+print("Best performance \(errors.min()!)")
 //let id = UUID()
 //let node1 = Node(parents: nil, nodeType: .Input, for: nil, weights: [id : 1])
 //let node2 = Node(parents: [node1], nodeType: .Hidden, for: nil, weights: [node1.id : 0.2])
